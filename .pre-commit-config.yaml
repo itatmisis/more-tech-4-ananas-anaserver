@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: trailing-whitespace
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/ambv/black
+    rev: 22.6.0
+    hooks:
+      - id: black
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        entry: pflake8
+        additional_dependencies: [pyproject-flake8]
+  - repo: https://github.com/pycqa/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        entry: pautoflake
+        additional_dependencies: [pyproject-autoflake]
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.4.0
+    hooks:
+      - id: nbqa-black
+        additional_dependencies: [black]
+      - id: nbqa-pyupgrade
+        args: [--py36-plus]
+        additional_dependencies: [pyupgrade]
+      - id: nbqa-isort
+        additional_dependencies: [isort]
+      - id: nbqa
+        entry: nbqa mdformat
+        name: nbqa-mdformat
+        alias: nbqa-mdformat
+        args: ["--nbqa-md"]
+        additional_dependencies: [mdformat]
