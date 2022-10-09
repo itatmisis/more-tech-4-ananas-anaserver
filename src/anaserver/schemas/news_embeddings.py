@@ -1,8 +1,10 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
 class NewsEmbeddingBase(BaseModel):
-    embedding: list
+    embedding: List[float]
     cluster_id: int
 
 

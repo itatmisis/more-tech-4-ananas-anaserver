@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 import sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,12 +35,12 @@ async def get_news_by_user(db: AsyncSession, user_id: int) -> List[News]:
     return news.scalars().all()
 
 
-async def get_news_by_id(db: AsyncSession, news_id: int) -> News:
+async def get_news_by_id(db: AsyncSession, news_id: UUID) -> News:
     result = await db.execute(sqlalchemy.select(News).where(News.id == news_id))
     return result.scalars().first()
 
 
-async def get_news_by_ids(db: AsyncSession, news_ids: list) -> List[News]:
+async def get_news_by_ids(db: AsyncSession, news_ids: List[UUID]) -> List[News]:
     news = await db.execute(sqlalchemy.select(News).where(News.id.in_(news_ids)))
     return news.scalars().all()
 
@@ -55,12 +56,12 @@ async def get_news_by_role(db: AsyncSession, role_id: int) -> List[News]:
     return news
 
 
-async def get_news_embedding(db: AsyncSession, news_id: int):
+async def get_news_embedding(db: AsyncSession, news_id: UUID):
     news_embedding = await db.execute(sqlalchemy.select(NewsEmbedding).where(NewsEmbedding.news_id == news_id))
     return news_embedding.scalars().first()
 
 
-async def get_news_embeddings(db: AsyncSession, news_ids: list):
+async def get_news_embeddings(db: AsyncSession, news_ids: List[UUID]):
     news_embeddings = await db.execute(sqlalchemy.select(NewsEmbedding).where(NewsEmbedding.news_id.in_(news_ids)))
     return news_embeddings.scalars().all()
 
@@ -70,7 +71,7 @@ async def get_all_news(db: AsyncSession):
     return news.scalars().all()
 
 
-async def get_closest_news(db: AsyncSession, news_id: int, n: int):
+async def get_closest_news(db: AsyncSession, news_id: UUID, n: int):
     news_embedding = await get_news_embedding(db, news_id)
     closest_news = await db.execute(
         sqlalchemy.select(News).where(
