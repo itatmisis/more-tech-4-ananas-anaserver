@@ -1,16 +1,16 @@
 import re
 
-import numpy as np
 import torch
+import numpy as np
 from transformers import AutoModel, AutoModelForSeq2SeqLM, AutoTokenizer
-
+from sklearn.decomposition import PCA
 
 class BertWrapper:
     """
     Враппер для модели Bert для получения эмбеддингов
     """
 
-    def __init__(self, multitask: bool = True):
+    def __init__(self, multitask: bool = True, pca=Union[PCA, Union[os.PathLike, str]]):
         """
         :param multitask bool: if True, use multilingual model, else standard model
         The type of the pre-trained model:
@@ -23,7 +23,12 @@ class BertWrapper:
             self.model_name = "sberbank-ai/sbert_large_mt_nlu_ru"
         else:
             self.model_name = "sberbank-ai/sbert_large_nlu_ru"
-
+        super().__init__()
+        if isinstance(pca, str) or isinstance(pca, os.PathLike):
+            self.pca = joblib.load(pca)
+        else:
+            self.pca = pca
+        self.nlp_model = nlp_model
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Load AutoModel from huggingface model repository
         # https://huggingface.co/sberbank-ai/sbert_large_mt_nlu_ru
@@ -56,7 +61,8 @@ class BertWrapper:
         model_output = self._get_model_output(encoded_input)
         sentence_embeddings = self._mean_pooling(model_output, encoded_input["attention_mask"])
 
-        result_embedding = sentence_embeddings.detach().cpu().numpy()
+        result_embedding = self.pca.transform(sentence_embeddings.detach().cpu().numpy())
+        
 
         return result_embedding
 
