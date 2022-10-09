@@ -26,11 +26,10 @@ async_scoped_session_factory = async_scoped_session(async_session_factory, scope
 async def init_models():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    session = async_scoped_session_factory()
+    session = get_session()
     await session.execute("CREATE EXTENSION IF NOT EXISTS vector")
 
 
 # Dependency
-async def get_session():
-    async with async_scoped_session_factory() as session:  # type: ignore
-        yield session
+def get_session():
+    return async_scoped_session_factory()
