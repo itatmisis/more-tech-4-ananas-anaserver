@@ -1,10 +1,13 @@
-from typing import List
+from datetime import datetime, timedelta
+from typing import List, Union
 from uuid import UUID
 
+import numpy as np
 import sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from anaserver.models import News, NewsEmbedding, User, UserToNews
+from anaserver.models import News, NewsEmbedding, Source, User, UserToNews
+from anaserver.models.users_embeddings import UserEmbedding
 
 
 async def get_user(db: AsyncSession, user_id: int) -> User:
@@ -56,30 +59,93 @@ async def get_news_by_role(db: AsyncSession, role_id: int) -> List[News]:
     return news
 
 
-async def get_news_embedding(db: AsyncSession, news_id: UUID):
+async def get_news_embedding(db: AsyncSession, news_id: UUID) -> NewsEmbedding:
     news_embedding = await db.execute(sqlalchemy.select(NewsEmbedding).where(NewsEmbedding.news_id == news_id))
     return news_embedding.scalars().first()
 
 
-async def get_news_embeddings(db: AsyncSession, news_ids: List[UUID]):
+async def get_user_embedding(db: AsyncSession, user_id: int) -> UserEmbedding:
+    user_embedding = await db.execute(sqlalchemy.select(UserEmbedding).where(UserEmbedding.id == user_id))
+    return user_embedding.scalars().first()
+
+
+async def get_news_embeddings(db: AsyncSession, news_ids: List[UUID]) -> List[NewsEmbedding]:
     news_embeddings = await db.execute(sqlalchemy.select(NewsEmbedding).where(NewsEmbedding.news_id.in_(news_ids)))
     return news_embeddings.scalars().all()
 
 
-async def get_all_news(db: AsyncSession):
+async def get_all_news(db: AsyncSession) -> List[News]:
     news = await db.execute(sqlalchemy.select(News))
     return news.scalars().all()
 
 
-async def get_closest_news(db: AsyncSession, news_id: UUID, n: int):
-    news_embedding = await get_news_embedding(db, news_id)
+async def get_closest_news(
+    db: AsyncSession, filtered_news: List[News], embedding: Union[UserEmbedding, NewsEmbedding], n: int
+) -> List[News]:
     closest_news = await db.execute(
-        sqlalchemy.select(News).where(
+        sqlalchemy.select(News)
+        .where(News.id.in_([news_.id for news_ in filtered_news]))
+        .where(
             News.id.in_(
                 sqlalchemy.select(NewsEmbedding.news_id)
-                .order_by(NewsEmbedding.embedding.cosine_distance(news_embedding.embedding))
+                .order_by(NewsEmbedding.embedding.cosine_distance(embedding.embedding))
                 .limit(n)
             )
         )
+        .order_by(News.date.desc())
     )
     return closest_news.scalars().all()
+
+
+async def get_filtered_news(db: AsyncSession, user_id: int) -> List[News]:
+    news = await db.execute(
+        sqlalchemy.select(News)
+        .where(News.id.notin_(sqlalchemy.select(UserToNews.news_id).where(UserToNews.user_id == user_id)))
+        .where(News.date >= (datetime.now() - timedelta(days=7)))
+        .where(
+            sqlalchemy.select(Source)
+            .where(Source.id == News.source_id)
+            .where(Source.role_id == sqlalchemy.select(User.role).where(User.id == user_id))
+        )
+    )
+    return news.scalars().all()
+
+
+async def add_action(db: AsyncSession, user_id: int, news_id: UUID, action_id: int) -> None:
+    await db.execute(
+        sqlalchemy.insert(UserToNews).values(
+            user_id=user_id,
+            news_id=news_id,
+            action_id=action_id,
+        )
+    )
+    await db.commit()
+
+
+async def get_news_for_user(db: AsyncSession, user_id: int, n: int) -> List[News]:
+    user_embedding = await get_user_embedding(db, user_id)
+    filtered_news = await get_filtered_news(db, user_id)
+    closeset_news = await get_closest_news(db, filtered_news, user_embedding, n)
+    for news in closeset_news:
+        await add_action(db, user_id, news.id, 0)
+    return closeset_news
+
+
+async def get_role_embedding(db: AsyncSession, role_id: int) -> List[float]:
+    user_embeddings = await db.execute(
+        sqlalchemy.select(UserEmbedding).where(
+            UserEmbedding.id.in_(sqlalchemy.select(User.id).where(User.role == role_id))
+        )
+    )
+    user_embeddings_lists = user_embeddings.scalars().all()
+    role_embedding = np.mean(
+        [np.array(user_embedding.embedding) for user_embedding in user_embeddings_lists], axis=0
+    ).tolist()
+    return role_embedding
+
+
+async def get_trends_for_role(db: AsyncSession, role_id: int) -> News:
+    role_embedding_list = await get_role_embedding(db, role_id)
+    role_embedding: UserEmbedding = UserEmbedding(id=role_id, embedding=role_embedding_list)
+    closest_article = await get_closest_news(db, await get_all_news(db), role_embedding, 1)
+    return closest_article[0]
