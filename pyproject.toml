@@ -20,7 +20,7 @@ pgvector = "^0.1.6"
 mypy = "^0.982"
 
 [tool.poetry.scripts]
-anaserver-start = "uvicorn anaserver.main:app --reload"
+anaserver-start = "anaserver.main:start_server"
 
 [tool.poetry.group.lint.dependencies]
 flake8                = "^5.0.4"

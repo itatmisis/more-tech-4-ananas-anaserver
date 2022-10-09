@@ -6,6 +6,8 @@ import anaserver.crud as crud  # noqa
 import anaserver.database as database
 import anaserver.models as models
 import anaserver.schemas as schemas
+import uvicorn
+
 
 app = FastAPI(title="AnaNews API", description="API for AnaNews", version="0.1.0")
 
@@ -50,3 +52,7 @@ async def add_user(user: schemas.User):
 @app.post("/digest")
 async def digest(digest: models.Digest):
     pass
+
+
+def start_server():
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
