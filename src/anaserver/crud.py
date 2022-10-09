@@ -64,7 +64,7 @@ async def get_news_embedding(db: AsyncSession, news_id: UUID) -> NewsEmbedding:
     return news_embedding.scalars().first()
 
 
-async def get_user_embedding(db: AsyncSession, user_id: int) -> UserEmbedding:
+async def get_user_embedding(db: AsyncSession, user_id: int) -> list:
     user_interactions = await db.execute(sqlalchemy.select(UserToNews).where(UserToNews.user_id == user_id))
     user_interactions = user_interactions.scalars().all()
     user_interacted_news = await db.execute(
@@ -81,8 +81,8 @@ async def get_user_embedding(db: AsyncSession, user_id: int) -> UserEmbedding:
             for news_embedding, news_ in zip(user_interacted_news_embeddings, user_interactions)
         ],
         axis=0,
-    )
-    return user_embedding.scalars().first()
+    ).tolist()
+    return user_embedding
 
 
 async def get_news_embeddings(db: AsyncSession, news_ids: List[UUID]) -> List[NewsEmbedding]:
@@ -141,6 +141,7 @@ async def add_action(db: AsyncSession, user_id: int, news_id: UUID, action_id: i
 async def get_news_for_user(db: AsyncSession, user_id: int, n: int) -> List[News]:
     user_embedding = await get_user_embedding(db, user_id)
     filtered_news = await get_filtered_news(db, user_id)
+    user_embedding = UserEmbedding(user_id=user_id, embedding=user_embedding)
     closeset_news = await get_closest_news(db, filtered_news, user_embedding, n)
     for news in closeset_news:
         await add_action(db, user_id, news.id, 0)
