@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from anaserver.models import News, NewsEmbedding, Role, Source, User, UserToNews
+from anaserver.models import News, NewsEmbedding, Source, User, UserToNews
 from anaserver.models.users_embeddings import UserEmbedding
 
 
@@ -117,12 +117,9 @@ async def get_filtered_news(db: AsyncSession, user_id: int) -> List[News]:
         select(News)
         .where(News.date >= (datetime.now() - timedelta(days=7)))
         .where(
-            News.source_id.in_(
-                select(Source.id).where(
-                    Source.id.in_(select(Role.id).where(Role.id.in_(select(User.role).where(User.id == user_id))))
-                )
-            )
+            News.source_id.in_(select(Source.id).where(Source.role_id == select(User.role).where(User.id == user_id)))
         )
+        .where(News.id.notin_(select(UserToNews.news_id).where(UserToNews.user_id == user_id)))
     )
     return news.scalars().all()
 
@@ -158,18 +155,19 @@ async def get_news_for_user(db: AsyncSession, user_id: int, n: int) -> List[News
 
 
 async def get_role_embedding(db: AsyncSession, role_id: int) -> List[float]:
-    user_embeddings = await db.execute(
-        select(UserEmbedding).where(UserEmbedding.id.in_(select(User.id).where(User.role == role_id)))
-    )
-    user_embeddings_lists = user_embeddings.scalars().all()
-    role_embedding = np.mean(
-        [np.array(user_embedding.embedding) for user_embedding in user_embeddings_lists], axis=0
-    ).tolist()
+    user_embeddings_list = [await get_user_embedding(db, user.id) for user in await get_users_by_role(db, role_id)]
+    role_embedding = np.mean([np.array(user_embedding) for user_embedding in user_embeddings_list], axis=0).tolist()
     return role_embedding
 
 
 async def get_trends_for_role(db: AsyncSession, role_id: int) -> News:
     role_embedding_list = await get_role_embedding(db, role_id)
     role_embedding: UserEmbedding = UserEmbedding(id=role_id, embedding=role_embedding_list)
-    closest_article = await get_closest_news(db, await get_all_news(db), role_embedding, 1)
+    news = await db.execute(
+        select(News)
+        .where(News.date >= (datetime.now() - timedelta(days=7)))
+        .where(News.source_id.in_(select(Source.id).where(Source.role_id == role_id)))
+    )
+    news = news.scalars().all()
+    closest_article = await get_closest_news(db, news, role_embedding, 1)
     return closest_article[0]
