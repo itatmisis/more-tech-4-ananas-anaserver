@@ -1,12 +1,12 @@
+import os
 import re
 from typing import Union
-import os
 
-import torch
 import joblib
 import numpy as np
-from transformers import AutoModel, AutoModelForSeq2SeqLM, AutoTokenizer
 from sklearn.decomposition import PCA
+import torch
+from transformers import AutoModel, AutoModelForSeq2SeqLM, AutoTokenizer
 
 
 class BertWrapper:
