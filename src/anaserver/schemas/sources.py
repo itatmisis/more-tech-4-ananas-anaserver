@@ -6,6 +6,7 @@ class SourceBase(BaseModel):
     url: str
     type: int
     is_active: bool
+    role_id: int
 
 
 class Source(SourceBase):
