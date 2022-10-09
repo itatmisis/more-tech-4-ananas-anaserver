@@ -13,7 +13,7 @@ host = os.getenv("HOST")
 db = os.getenv("DB")
 
 
-DATABASE_URL = f"postgresql[+asyncpg]://{user}:{password}@{host}/{db}"
+DATABASE_URL = f"postgresql+asyncpg://{user}:{password}@{host}/{db}"
 # DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
