@@ -103,7 +103,7 @@ async def get_closest_news(
         .where(News.id.in_([news_.id for news_ in filtered_news]))
         .where(
             News.id.in_(
-                sqlalchemy.select(NewsEmbedding.news_id)
+                sqlalchemy.select(NewsEmbedding.id)
                 .order_by(NewsEmbedding.embedding.cosine_distance(embedding.embedding))
                 .limit(n)
             )
