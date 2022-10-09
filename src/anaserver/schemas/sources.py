@@ -5,6 +5,7 @@ class SourceBase(BaseModel):
     name: str
     url: str
     type: int
+    is_active: bool
 
 
 class Source(SourceBase):

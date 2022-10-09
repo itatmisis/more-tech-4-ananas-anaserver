@@ -10,3 +10,4 @@ class Source(Base):
     name = sqlalchemy.Column(sqlalchemy.String)
     url = sqlalchemy.Column(sqlalchemy.String)
     type = sqlalchemy.Column(sqlalchemy.Integer)
+    is_active = sqlalchemy.Column(sqlalchemy.Boolean)
