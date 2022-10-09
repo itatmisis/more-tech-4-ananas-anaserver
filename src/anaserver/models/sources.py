@@ -11,4 +11,4 @@ class Source(Base):
     url = sqlalchemy.Column(sqlalchemy.String)
     type = sqlalchemy.Column(sqlalchemy.Integer)
     is_active = sqlalchemy.Column(sqlalchemy.Boolean)
-    role_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("roles.id"), nullable=False)
+    role_id = sqlalchemy.Column(sqlalchemy.ForeignKey("roles.id"))
