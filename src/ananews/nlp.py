@@ -1,9 +1,13 @@
 import re
+from typing import Union
+import os
 
 import torch
+import joblib
 import numpy as np
 from transformers import AutoModel, AutoModelForSeq2SeqLM, AutoTokenizer
 from sklearn.decomposition import PCA
+
 
 class BertWrapper:
     """
@@ -28,7 +32,6 @@ class BertWrapper:
             self.pca = joblib.load(pca)
         else:
             self.pca = pca
-        self.nlp_model = nlp_model
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Load AutoModel from huggingface model repository
         # https://huggingface.co/sberbank-ai/sbert_large_mt_nlu_ru
@@ -62,7 +65,6 @@ class BertWrapper:
         sentence_embeddings = self._mean_pooling(model_output, encoded_input["attention_mask"])
 
         result_embedding = self.pca.transform(sentence_embeddings.detach().cpu().numpy())
-        
 
         return result_embedding
 
