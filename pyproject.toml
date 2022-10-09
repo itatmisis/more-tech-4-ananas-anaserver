@@ -4,7 +4,7 @@ version     = "0.1.0"
 description = ""
 authors     = ["Artyom Sosedka <sostema@gmail.com>"]
 repository  = "https://github.com/itatmisis/more-tech-4-ananas-anaserver"
-packages    = [{ include = "anaserver", from = "src" }]
+packages    = [{ include = "anaserver", from = "src" }, {include = "ananews", from = "src"}]
 
 [tool.poetry.dependencies]
 python  = "^3.8, <3.11"
@@ -15,6 +15,9 @@ uvicorn = {extras = ["standard"], version = "^0.18.3"}
 SQLAlchemy = "^1.4.41"
 asyncpg = "^0.26.0"
 pgvector = "^0.1.6"
+transformers = "^4.22.2"
+scikit-learn = "^1.1.2"
+torch = "^1.12.1"
 
 [tool.poetry.group.type_check.dependencies]
 mypy = "^0.982"

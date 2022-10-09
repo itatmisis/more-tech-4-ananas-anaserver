@@ -48,10 +48,9 @@ async def add_user(user: schemas.User):
         raise HTTPException(status_code=500, detail="Error while adding user")
 
 
-@app.post("/digest")
-async def digest(digest: models.Digest):
-    pass
-
-
 def start_server():
     uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+
+
+if __name__ == "__main__":
+    start_server()
