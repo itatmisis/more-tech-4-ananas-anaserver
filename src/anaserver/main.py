@@ -30,7 +30,7 @@ async def start():
 async def news():
     try:
         async with database.get_session() as db:
-            news_orm: List[models.News] = await database.get_all_news(db)
+            news_orm: List[models.News] = await crud.get_all_news(db)
             news = [schemas.News.from_orm(news) for news in news_orm]
             return news
     except Exception:
@@ -38,18 +38,18 @@ async def news():
 
 
 @app.post("/user", response_model=List[schemas.User])
-async def add_user(user: schemas.User):
+async def add_user(user: schemas.UserCreate):
     try:
         async with database.get_session() as db:
-            user_orm = models.User(name=user.name, role=user.role)
-            result = await database.add_user(db, user_orm)
+            user_orm = models.User(id=user.id, role_id=user.role_id)
+            result = await crud.add_user(db, user_orm)
             return result
     except Exception:
         raise HTTPException(status_code=500, detail="Error while adding user")
 
 
 def start_server():
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 
 if __name__ == "__main__":
