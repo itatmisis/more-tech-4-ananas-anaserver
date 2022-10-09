@@ -1,10 +1,25 @@
 FROM python:3.10
 
-COPY requirements.txt /app/requirements.txt
-RUN pip3 install -r /app/requirements.txt
-COPY src/anaserver /app/anaserver
-COPY src/ananews /app/ananews
+# Configure Poetry
+ENV POETRY_VERSION=1.2.0
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VENV=/opt/poetry-venv
+ENV POETRY_CACHE_DIR=/opt/.cache
+
+# Install poetry separated from system interpreter
+RUN python3 -m venv $POETRY_VENV \
+    && $POETRY_VENV/bin/pip install -U pip setuptools \
+    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+
+# Add `poetry` to PATH
+ENV PATH="${PATH}:${POETRY_VENV}/bin"
+
 WORKDIR /app
 
+# Install dependencies
+COPY .env poetry.lock pyproject.toml src/ ./
+RUN poetry install --no-root
+
 # Run your app
-CMD [ "python", "/app/anaserver/main.py" ]
+COPY . /app
+CMD [ "poetry", "run", "anaserver-start" ]
