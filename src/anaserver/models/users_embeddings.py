@@ -4,7 +4,7 @@ import sqlalchemy
 from anaserver.database import Base
 
 
-class UserEmbeddings(Base):
+class UserEmbedding(Base):
     __tablename__ = "users_embeddings"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), primary_key=True)

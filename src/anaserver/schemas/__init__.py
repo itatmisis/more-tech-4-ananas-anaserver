@@ -5,5 +5,6 @@ from .news_embeddings import NewsEmbedding
 from .roles import Role
 from .sources import Source
 from .users import User, UserCreate
+from .users_embeddings import UserEmbedding
 
-__all__ = ["Action", "Attachment", "NewsEmbedding", "News", "Role", "Source", "User", "UserCreate"]
+__all__ = ["Action", "Attachment", "NewsEmbedding", "News", "Role", "Source", "User", "UserCreate", "UserEmbedding"]
