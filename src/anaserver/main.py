@@ -2,12 +2,13 @@ from fastapi import FastAPI
 import uvicorn
 
 from anaserver import database
-from anaserver.routers import actions, news, users
+from anaserver.routers import actions, news, users, roles
 
 app = FastAPI(title="AnaNews API", description="API for AnaNews", version="0.1.0")
 app.include_router(news.router)
 app.include_router(users.router)
 app.include_router(actions.router)
+app.include_router(roles.router)
 
 
 @app.on_event("startup")
