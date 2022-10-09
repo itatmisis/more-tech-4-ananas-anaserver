@@ -13,7 +13,7 @@ class News(Base):
     short_text = sqlalchemy.Column(sqlalchemy.String)
     url = sqlalchemy.Column(sqlalchemy.String)
     views = sqlalchemy.Column(sqlalchemy.String)
-    date = sqlalchemy.Column(sqlalchemy.DateTime)
+    date = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
     source_id = sqlalchemy.Column(sqlalchemy.ForeignKey("sources.id"))
 
     attachments = relationship("Attachment", backref="news")
