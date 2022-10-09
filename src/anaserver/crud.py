@@ -145,6 +145,8 @@ async def add_action(db: AsyncSession, user_id: int, news_id: UUID, action_id: i
 async def get_news_for_user(db: AsyncSession, user_id: int, n: int) -> List[News]:
     user_embedding = await get_user_embedding(db, user_id)
     filtered_news = await get_filtered_news(db, user_id)
+    if not filtered_news:
+        filtered_news = await get_all_news(db)
     user_embedding = UserEmbedding(id=user_id, embedding=user_embedding)
     closeset_news = await get_closest_news(db, filtered_news, user_embedding, n)
     for news in closeset_news:
