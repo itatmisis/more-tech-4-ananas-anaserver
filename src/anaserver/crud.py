@@ -65,7 +65,23 @@ async def get_news_embedding(db: AsyncSession, news_id: UUID) -> NewsEmbedding:
 
 
 async def get_user_embedding(db: AsyncSession, user_id: int) -> UserEmbedding:
-    user_embedding = await db.execute(sqlalchemy.select(UserEmbedding).where(UserEmbedding.id == user_id))
+    user_interactions = await db.execute(sqlalchemy.select(UserToNews).where(UserToNews.user_id == user_id))
+    user_interactions = user_interactions.scalars().all()
+    user_interacted_news = await db.execute(
+        sqlalchemy.select(News).where(
+            News.id.in_(sqlalchemy.select(UserToNews.news_id).where(UserToNews.user_id == user_id))
+        )
+    )
+    user_interacted_news = user_interacted_news.scalars().all()
+    user_interacted_news_embeddings = await get_news_embeddings(db, [news.id for news in user_interacted_news])
+    user_coef = {0: 1, 1: 5, 2: -2}
+    user_embedding = np.mean(
+        [
+            np.array(news_embedding.embedding) * user_coef[news_.action_id]
+            for news_embedding, news_ in zip(user_interacted_news_embeddings, user_interactions)
+        ],
+        axis=0,
+    )
     return user_embedding.scalars().first()
 
 
