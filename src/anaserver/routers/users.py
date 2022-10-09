@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.User])
+@router.get("/", response_model=schemas.User)
 async def read_users() -> List[schemas.User]:
     db = get_session()
     users_orm = await crud.get_users(db)

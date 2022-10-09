@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, status
 
 from anaserver import crud, schemas
@@ -12,7 +10,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=List[schemas.News])
+@router.post("/", response_model=schemas.News)
 async def add_action(action: schemas.ActionCreate):
     db = get_session()
     try:
