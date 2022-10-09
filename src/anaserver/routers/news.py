@@ -39,7 +39,15 @@ async def get_news_for_user(user_id: int) -> List[schemas.News]:
 
 @router.get("/trends/{role_id}", response_model=List[schemas.News])
 async def get_trends_for_role(role_id: int) -> List[schemas.News]:
-     async with get_session() as db:
+    async with get_session() as db:
         news_orm = await crud.get_trends_for_role(db, role_id)
         news = [schemas.News.from_orm(news) for news in news_orm]
         return news
+
+@router.get("/by_user/{user_id}", response_model=List[schemas.News])
+async  def get_news_by_user(user_id: int) -> List[schemas.News]:
+    async with get_session() as db:
+        async  with get_session() as db:
+            news_orm = await crud.get_news_by_id(db, user_id)
+            news = [schemas.News.from_orm(news) for news in news_orm]
+            return news

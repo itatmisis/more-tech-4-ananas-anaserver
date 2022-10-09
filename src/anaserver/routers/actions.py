@@ -11,7 +11,6 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
 @router.post("/", response_model=List[schemas.News])
 async def add_action(action: schemas.ActionCreate):
     async with get_session() as db:

@@ -27,3 +27,11 @@ async def create_user(user: schemas.UserCreate) -> schemas.User:
         result_orm = await crud.add_user(db, user_orm)
         result = schemas.User.from_orm(result_orm)
         return result
+
+
+@router.get('/roles', response_model=List[schemas.User])
+async def users_by_role(role_id: int) -> List[schemas.User]:
+    async with get_session() as db:
+        user_orm = await crud.get_users_by_role(db, role_id)
+        users = [schemas.User.from_orm(user) for user in user_orm]
+        return users
