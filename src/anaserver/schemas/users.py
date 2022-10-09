@@ -7,12 +7,12 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     id: int
-    role_id: int
+    role: int
 
 
 class User(UserBase):
     id: int
-    role_id: int
+    role: int
 
     class Config:
         orm_mode = True

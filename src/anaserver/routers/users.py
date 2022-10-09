@@ -16,14 +16,14 @@ router = APIRouter(
 async def read_users() -> List[schemas.User]:
     db = get_session()
     users_orm = await crud.get_users(db)
-    users = [schemas.User(id=user.id, role_id=user.role) for user in users_orm]
+    users = [schemas.User(id=user.id, role=user.role) for user in users_orm]
     return users
 
 
 @router.post("/", response_model=schemas.User)
 async def create_user(user: schemas.UserCreate) -> schemas.User:
     db = get_session()
-    user_orm = models.User(id=user.id, role_id=user.role_id)
+    user_orm = models.User(id=user.id, role=user.role)
     result_orm = await crud.add_user(db, user_orm)
-    result = schemas.User(id=result_orm.id, role_id=result_orm.role)
+    result = schemas.User(id=result_orm.id, role=result_orm.role)
     return result
