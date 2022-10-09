@@ -1,13 +1,12 @@
 from typing import List
 
 from fastapi import FastAPI, HTTPException
+import uvicorn
 
 import anaserver.crud as crud  # noqa
 import anaserver.database as database
 import anaserver.models as models
 import anaserver.schemas as schemas
-import uvicorn
-
 
 app = FastAPI(title="AnaNews API", description="API for AnaNews", version="0.1.0")
 

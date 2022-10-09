@@ -15,7 +15,6 @@ uvicorn = {extras = ["standard"], version = "^0.18.3"}
 SQLAlchemy = "^1.4.41"
 asyncpg = "^0.26.0"
 pgvector = "^0.1.6"
-psycopg2-binary = "^2.9.4"
 
 [tool.poetry.group.type_check.dependencies]
 mypy = "^0.982"
