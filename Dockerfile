@@ -7,4 +7,4 @@ COPY src/ananews /app/ananews
 WORKDIR /app
 
 # Run your app
-CMD [ "python", "src/anaserver/main.py" ]
+CMD [ "python", "/app/anaserver/main.py" ]
