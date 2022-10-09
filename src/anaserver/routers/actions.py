@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.post("/", response_model=List[schemas.News])
 async def add_action(action: schemas.ActionCreate):
-        async with get_session() as db:
+    async with get_session() as db:
         try:
             await crud.add_action(db, user_id=action.user_id, news_id=action.news_id, action_id=action.id)
             return status.HTTP_200_OK
