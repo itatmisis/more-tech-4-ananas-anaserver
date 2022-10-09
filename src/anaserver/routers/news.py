@@ -14,9 +14,9 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.News])
-async def read_news() -> List[schemas.News]:
+async def read_news(offset: int, count: int) -> List[schemas.News]:
     db = get_session()
-    news_orm = await crud.get_all_news(db)
+    news_orm = await crud.get_news(db)
     news = [schemas.News.from_orm(news) for news in news_orm]
     return news
 
