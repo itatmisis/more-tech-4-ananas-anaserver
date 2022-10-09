@@ -28,7 +28,8 @@ async def create_user(user: schemas.UserCreate) -> schemas.User:
     result = schemas.User(id=result_orm.id, role=result_orm.role)
     return result
 
-@router.get("/user_embeddings",response_model=list)
-async  def user_embeddings(user_id: int) -> list:
+
+@router.get("/user_embeddings", response_model=list)
+async def user_embeddings(user_id: int) -> list:
     db = get_session()
-    return await crud.get_user_embedding(db,user_id);
+    return await crud.get_user_embedding(db, user_id)

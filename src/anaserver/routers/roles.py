@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter
 
@@ -20,9 +19,7 @@ async def read_news(role_id: int) -> List[float]:
 
 
 @router.get("/trend", response_model=schemas.News)
-async def trend_for_role(role_id:int) -> schemas.News:
+async def trend_for_role(role_id: int) -> schemas.News:
     db = get_session()
     news_orm = await crud.get_trends_for_role(db, role_id)
     return schemas.News.from_orm(news_orm)
-
-

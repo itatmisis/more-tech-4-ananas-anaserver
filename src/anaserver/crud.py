@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from anaserver.models import News, NewsEmbedding, Source, User, UserToNews, Role
+from anaserver.models import News, NewsEmbedding, Role, Source, User, UserToNews
 from anaserver.models.users_embeddings import UserEmbedding
 
 
