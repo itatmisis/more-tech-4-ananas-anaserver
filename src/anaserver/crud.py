@@ -89,8 +89,11 @@ async def get_news_embeddings(db: AsyncSession, news_ids: List[UUID]) -> List[Ne
     return news_embeddings.scalars().all()
 
 
-async def get_all_news(db: AsyncSession) -> List[News]:
-    news = await db.execute(select(News))
+async def get_all_news(db: AsyncSession, n: int = -1) -> List[News]:
+    if n == -1:
+        news = await db.execute(select(News).order_by(News.date.desc()))
+    elif n > 0:
+        news = await db.execute(select(News).order_by(News.date.desc()).limit(n))
     return news.scalars().all()
 
 
@@ -146,7 +149,7 @@ async def get_news_for_user(db: AsyncSession, user_id: int, n: int) -> List[News
     user_embedding = await get_user_embedding(db, user_id)
     filtered_news = await get_filtered_news(db, user_id)
     if not filtered_news:
-        filtered_news = await get_all_news(db)
+        filtered_news = await get_all_news(db, 15)
     user_embedding = UserEmbedding(id=user_id, embedding=user_embedding)
     closeset_news = await get_closest_news(db, filtered_news, user_embedding, n)
     for news in closeset_news:
