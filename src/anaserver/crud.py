@@ -75,7 +75,7 @@ async def get_user_embedding(db: AsyncSession, user_id: int) -> list:
     user_interacted_news = user_interacted_news.scalars().all()
     user_interacted_news_embeddings = await get_news_embeddings(db, [news.id for news in user_interacted_news])
     user_coef = {0: 1, 1: 5, 2: -2}
-    user_embedding = np.mean(
+    user_embedding = np.sum(
         [
             np.array(news_embedding.embedding) * user_coef[news_.action_id]
             for news_embedding, news_ in zip(user_interacted_news_embeddings, user_interactions)
