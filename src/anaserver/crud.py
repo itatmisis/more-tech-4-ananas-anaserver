@@ -100,7 +100,7 @@ async def get_all_news(db: AsyncSession,n: int = -1) -> List[News]:
     if n == -1:
         news = await db.execute(select(News).order_by(News.date.desc()))
     elif n > 0:
-        news = await db.execute(select(News)..order_by(News.date.desc()).limit(n))
+        news = await db.execute(select(News).order_by(News.date.desc()).limit(n))
     return news.scalars().all()
 
 
